@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The CSRI Ecosystem Map</title>
+<style>
+  :root {
+    --c1:#1D9E75; --c1-tint:#1D9E7510;
+    --c2:#E8732A; --c2-tint:#E8732A12;
+    --c3:#2B5EA7; --c3-tint:#2B5EA710;
+    --c4:#8A6E3C; --c4-tint:#8A6E3C12;
+    --ink:#0f1720; --ink-2:#3b4654; --ink-3:#6b7785; --ink-4:#9aa3b0;
+    --line:#0f17201a; --line-2:#0f172012;
+    --surface:#ffffffcc; --surface-2:#ffffff80;
+    --chip:#0f17200a; --chip-h:#0f172014;
+    --shadow:0 1px 0 #0f172008, 0 8px 28px -12px #0f172026;
+    --radius:16px; --radius-sm:10px;
+    --paper:#ffffff;
+    --font-sans:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-num:"SF Pro Display", ui-sans-serif, system-ui, -apple-system, Inter, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --ink:#eef2f7; --ink-2:#c9d1dc; --ink-3:#8b95a4; --ink-4:#6a7382;
+    --line:#ffffff1f; --line-2:#ffffff14;
+    --surface:#0f1720b3; --surface-2:#0f17207a;
+    --chip:#ffffff14; --chip-h:#ffffff22;
+    --shadow:0 1px 0 #00000040, 0 12px 36px -10px #00000080;
+    --c1-tint:#1D9E7522; --c2-tint:#E8732A22; --c3-tint:#2B5EA722; --c4-tint:#8A6E3C22;
+    --paper:#0f1720;
+  }
+
+  html, body { margin:0; padding:0; background:transparent; }
+  body { font-family:var(--font-sans); color:var(--ink); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  *, *::before, *::after { box-sizing:border-box; }
+  button { font:inherit; }
+
+  .csri { width:min(100%,1280px); margin:0 auto; padding:clamp(12px,2vw,20px); container-type:inline-size; }
+  .csri__head { display:flex; justify-content:flex-end; gap:8px; padding:0 4px 10px; }
+  .csri__theme, .csri__reset {
+    appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink-3);
+    height:34px; border-radius:9px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+    transition:background .15s, color .15s, border-color .15s, transform .15s;
+  }
+  .csri__theme { width:34px; }
+  .csri__reset { padding:0 12px; font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; }
+  .csri__theme:hover, .csri__reset:hover { color:var(--ink); border-color:var(--ink-4); background:var(--chip-h); }
+  .csri__theme:focus-visible, .csri__reset:focus-visible, .layer:focus-visible, .keystrip__item:focus-visible, .reading__chip:focus-visible, .node:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+
+  .hero { padding:24px 8px 28px; text-align:center; position:relative; border-radius:var(--radius); overflow:hidden; }
+  .hero::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 18% 0%, var(--c1-tint), transparent 55%), radial-gradient(ellipse at 82% 0%, var(--c2-tint), transparent 55%), radial-gradient(ellipse at 50% 100%, var(--c3-tint), transparent 60%); pointer-events:none; }
+  .hero__eyebrow { position:relative; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-3); font-weight:700; margin-bottom:10px; }
+  .hero__title { position:relative; margin:0 0 6px; font-size:clamp(28px, 3.2vw, 42px); font-weight:700; letter-spacing:-0.025em; line-height:1.1; }
+  .hero__title .grad { background:linear-gradient(90deg, var(--c1) 0%, var(--c2) 50%, var(--c3) 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero__sub { position:relative; color:var(--ink-3); font-size:14px; max-width:66ch; margin:6px auto 0; line-height:1.55; }
+
+  .keystrip { display:flex; align-items:center; justify-content:center; gap:12px; padding:14px 12px; font-size:12.5px; color:var(--ink-3); flex-wrap:wrap; }
+  .keystrip__item { appearance:none; border:1px solid transparent; display:inline-flex; align-items:center; gap:7px; font-weight:600; cursor:pointer; padding:6px 11px; border-radius:8px; transition:background .15s, opacity .15s, border-color .15s; user-select:none; background:transparent; }
+  .keystrip__item:hover { background:var(--chip-h); }
+  .keystrip__item.is-active { border-color:currentColor; background:var(--chip); }
+  .keystrip__item.is-dim { opacity:0.32; }
+  .keystrip__item .sw { width:10px; height:10px; border-radius:3px; background:currentColor; flex:0 0 auto; }
+  .keystrip__item[data-k="surr"] { color:var(--c2); }
+  .keystrip__item[data-k="emb"]  { color:var(--c4); }
+  .keystrip__item[data-k="del"]  { color:var(--c1); }
+  .keystrip__item[data-k="con"]  { color:var(--c3); }
+  .keystrip__item span:last-child { color:var(--ink); }
+
+  .body { display:grid; grid-template-columns:minmax(210px,240px) minmax(440px,1fr) minmax(280px,320px); gap:16px; padding:6px 4px 18px; align-items:start; }
+  @media (max-width:1120px) { .body { grid-template-columns:1fr; } .layers { order:2; } .reading { order:3; } .stage { order:1; } }
+
+  .layers { display:flex; flex-direction:column; gap:10px; }
+  .layers__title { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:700; padding:0 4px 4px; }
+  .layer { text-align:left; width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:14px 14px 12px; cursor:pointer; transition:border-color .15s, background .15s, opacity .15s; position:relative; overflow:hidden; color:var(--ink); }
+  .layer::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:currentColor; }
+  .layer:hover { background:var(--chip); }
+  .layer.is-active { border-color:currentColor; }
+  .layer.is-dim { opacity:0.42; }
+  .layer[data-k="surr"] { color:var(--c2); }
+  .layer[data-k="emb"]  { color:var(--c4); }
+  .layer[data-k="del"]  { color:var(--c1); }
+  .layer[data-k="con"]  { color:var(--c3); }
+  .layer__num { font-family:var(--font-num); font-size:10px; font-weight:700; letter-spacing:0.16em; color:currentColor; opacity:0.85; }
+  .layer__name { font-size:15px; font-weight:700; color:var(--ink); margin:2px 0 6px; letter-spacing:-0.01em; }
+  .layer__desc { font-size:12.5px; color:var(--ink-3); line-height:1.5; }
+
+  .stage { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:8px; aspect-ratio:1.18/1; position:relative; overflow:hidden; min-height:560px; box-shadow:var(--shadow); }
+  .stage svg { width:100%; height:100%; display:block; }
+
+  .ring { fill:none; stroke:var(--ink); opacity:0.10; stroke-width:1; stroke-dasharray:3 5; }
+  .ring--solid { stroke-dasharray:none; opacity:0.16; }
+  .ring-label { font-size:12px; letter-spacing:0.18em; text-transform:uppercase; fill:var(--ink-3); font-weight:700; opacity:0.88; }
+  .context-ring { fill:none; stroke:var(--ink); opacity:0.11; stroke-width:0.9; stroke-dasharray:2 8; }
+  .context-label { font-size:11.5px; letter-spacing:0.20em; text-transform:uppercase; fill:var(--ink-3); font-weight:700; opacity:0.82; }
+  .ring, .ring-label { transition:opacity .2s, stroke .2s, stroke-width .2s, fill .2s; }
+  .ring[data-k="surr"].is-active { stroke:var(--c2); opacity:.58; stroke-width:1.6; stroke-dasharray:none; }
+  .ring[data-k="emb"].is-active  { stroke:var(--c4); opacity:.58; stroke-width:1.6; stroke-dasharray:none; }
+  .ring[data-k="del"].is-active  { stroke:var(--c1); opacity:.58; stroke-width:1.6; stroke-dasharray:none; }
+  .ring[data-k="con"].is-active  { stroke:var(--c3); opacity:.58; stroke-width:1.6; stroke-dasharray:none; }
+  .ring.is-faded { opacity:0.035; }
+  .ring-label.is-active { fill:var(--ink); opacity:1; }
+  .ring-label.is-faded { opacity:0.20; }
+  .hub { fill:#fff; stroke:var(--ink); stroke-width:1.2; transition:transform .2s; transform-origin:center; }
+  .hub-logo { pointer-events:none; }
+  .hub-text { fill:var(--ink); font-family:var(--font-sans); font-style:normal; font-weight:800; font-size:36px; letter-spacing:0.10em; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+  .hub-group:hover .hub { transform:scale(1.03); }
+
+  .edge { fill:none; opacity:0.30; stroke-width:1.2; transition:opacity .2s, stroke-width .2s; }
+  .edge[data-k="surr"] { stroke:var(--c2); }
+  .edge[data-k="emb"]  { stroke:var(--c4); }
+  .edge[data-k="del"]  { stroke:var(--c1); }
+  .edge[data-k="con"]  { stroke:var(--c3); }
+  .edge.is-bold { opacity:0.95; stroke-width:2; }
+  .edge.is-faded { opacity:0.05; }
+
+  .node { cursor:pointer; transition:opacity .2s; }
+  .node circle.bg { fill:var(--paper); stroke-width:2.5; transition:r .2s, stroke-width .2s, filter .2s; }
+  .node[data-k="surr"] circle.bg { stroke:var(--c2); }
+  .node[data-k="emb"]  circle.bg { stroke:var(--c4); }
+  .node[data-k="del"]  circle.bg { stroke:var(--c1); }
+  .node[data-k="con"]  circle.bg { stroke:var(--c3); }
+  .node text.glyph { font-size:18px; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+  .node text.title { font-size:15px; fill:var(--ink); font-weight:700; text-anchor:middle; pointer-events:none; letter-spacing:-0.01em; }
+  .node text.sub   { font-size:10.5px; fill:var(--ink-3); text-anchor:middle; pointer-events:none; letter-spacing:0.11em; text-transform:uppercase; font-weight:600; }
+  .node:hover circle.bg, .node:focus-visible circle.bg { stroke-width:3.6; filter:drop-shadow(0 4px 8px #0f17202a); }
+  .node.is-active circle.bg { stroke-width:4; r:23; }
+  .node.is-faded { opacity:0.20; }
+
+  .reading { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 16px; display:flex; flex-direction:column; gap:14px; align-self:start; box-shadow:var(--shadow); }
+  .reading__top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .reading__eyebrow { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-3); font-weight:700; }
+  .reading__count { font-family:var(--font-num); font-variant-numeric:tabular-nums; font-size:11px; color:var(--ink-4); font-weight:600; letter-spacing:0.05em; }
+  .reading__title { font-size:24px; font-weight:700; letter-spacing:-0.02em; color:var(--ink); margin:0; line-height:1.1; }
+  .reading__title .accent { background:linear-gradient(90deg, var(--c1), var(--c2), var(--c3)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .reading__cap { font-size:12.5px; color:var(--ink-3); line-height:1.5; font-style:italic; margin:0; }
+  .reading__body { font-size:13px; line-height:1.6; color:var(--ink-2); margin:0; }
+  .reading__body em { color:var(--ink); font-style:normal; font-weight:600; }
+  .reading__chips { display:flex; gap:6px; flex-wrap:wrap; padding-top:6px; border-top:1px dashed var(--line); }
+  .reading__chip { appearance:none; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; padding:6px 11px; border-radius:6px; border:1px solid var(--line); cursor:pointer; font-weight:700; color:var(--ink-3); background:var(--paper); transition:all .15s; }
+  .reading__chip:hover { color:var(--ink); border-color:var(--ink-4); }
+  .reading__chip.is-active { color:var(--paper); border-color:var(--ink); background:var(--ink); }
+  .howto { font-size:11.5px; color:var(--ink-3); line-height:1.55; padding:12px 14px; border:1px dashed var(--line); border-radius:var(--radius-sm); }
+  .howto strong { color:var(--ink); font-weight:700; letter-spacing:-0.01em; }
+  .foot { padding:14px 8px 6px; font-size:11.5px; color:var(--ink-4); text-align:center; }
+
+  @media (max-width:760px) {
+    .csri { padding:10px; }
+    .hero { padding:18px 8px 20px; }
+    .keystrip { justify-content:flex-start; padding-inline:0; }
+    .body { padding-inline:0; gap:12px; }
+    .stage { min-height:430px; aspect-ratio:1/1; padding:4px; }
+    .reading { padding:16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition:none !important; animation:none !important; scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body>
+<div class="csri" id="csriApp">
+  <div class="csri__head">
+    <button class="csri__reset" id="resetBtn" type="button">Reset</button>
+    <button class="csri__theme" id="themeBtn" type="button" aria-label="Toggle dark and light theme" title="Toggle theme">
+      <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+    </button>
+  </div>
+
+  <header class="hero">
+    <div class="hero__eyebrow">The CSRI Ecosystem Map</div>
+    <h1 class="hero__title"><span class="grad">A reading</span> of how the CSRI stands in the world.</h1>
+    <p class="hero__sub">Four readings, eleven anchors. The map opens outward from CSRI: who stands beside it, where it is embedded, what it delivers, and what it contributes to.</p>
+  </header>
+
+  <nav class="keystrip" id="keystrip" aria-label="Map layer filters">
+    <button class="keystrip__item" type="button" data-k="surr"><span class="sw"></span><span>Surrounded by</span></button>
+    <button class="keystrip__item" type="button" data-k="emb"><span class="sw"></span><span>Embedded in</span></button>
+    <button class="keystrip__item" type="button" data-k="del"><span class="sw"></span><span>Delivering</span></button>
+    <button class="keystrip__item" type="button" data-k="con"><span class="sw"></span><span>Contributing to</span></button>
+  </nav>
+
+  <main class="body">
+    <aside class="layers" id="layers" aria-label="Map layers">
+      <div class="layers__title">Layers</div>
+      <button class="layer" type="button" data-k="surr">
+        <div class="layer__num">01 · SURROUNDED BY</div>
+        <div class="layer__name">Surrounded by</div>
+        <div class="layer__desc">Academic, public and industry partners around CSRI.</div>
+      </button>
+      <button class="layer" type="button" data-k="emb">
+        <div class="layer__num">02 · EMBEDDED IN</div>
+        <div class="layer__name">Embedded in</div>
+        <div class="layer__desc">European programs and innovation communities that frame the work.</div>
+      </button>
+      <button class="layer" type="button" data-k="del">
+        <div class="layer__num">03 · DELIVERING</div>
+        <div class="layer__name">Delivering</div>
+        <div class="layer__desc">Research, knowledge transfer and implementation work delivered by CSRI.</div>
+      </button>
+      <button class="layer" type="button" data-k="con">
+        <div class="layer__num">04 · CONTRIBUTING TO</div>
+        <div class="layer__name">Contributing to</div>
+        <div class="layer__desc">Responsible, accountable and socially oriented effects of the work.</div>
+      </button>
+      <div class="howto"><strong>How to read.</strong> Click any node — or any layer above — to read its role. Rings move outward from CSRI: <em>partners → programs → activities → impact</em>. The outer dotted context marks <em>international scope → European reach</em>.</div>
+    </aside>
+
+    <section class="stage" aria-label="Interactive CSRI ecosystem map">
+      <svg id="svg" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="svgTitle svgDesc">
+        <title id="svgTitle">Interactive CSRI ecosystem map</title>
+        <desc id="svgDesc">CSRI appears at the centre. Four rings show partners, programs, activities and impact anchors, with an outer context for international scope and European reach.</desc>
+      </svg>
+    </section>
+
+    <aside class="reading" id="reading" aria-live="polite">
+      <div class="reading__top">
+        <div class="reading__eyebrow" id="rEye">Centre</div>
+        <div class="reading__count" id="rCount">00 / 11</div>
+      </div>
+      <h2 class="reading__title" id="rTitle"><span class="accent">CSRI</span></h2>
+      <p class="reading__cap" id="rCap">Centre for Socially Responsible Innovations</p>
+      <p class="reading__body" id="rBody">CSRI sits at the centre of an ecosystem it neither owns nor fully contains. The map opens outward in four readings: <em>who stands beside it</em>, <em>where it is embedded</em>, <em>what it delivers</em>, and <em>what it contributes to</em>. Each ring is a different question. Each node is a different answer.</p>
+      <div class="reading__chips" id="rChips" aria-label="Centre role readings">
+        <button class="reading__chip is-active" type="button" data-role="centre">Centre</button>
+        <button class="reading__chip" type="button" data-role="anchor">Anchor</button>
+        <button class="reading__chip" type="button" data-role="convener">Convener</button>
+      </div>
+    </aside>
+  </main>
+
+  
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const NODES = [
+  { id:"academic", k:"surr", glyph:"🎓", title:"Academic", sub:"Universities · Labs", body:"Academic partners provide research capacity, methods and expert communities. They are not only beneficiaries of CSRI work, but also co-creators of evidence, curricula and implementation models." },
+  { id:"public",   k:"surr", glyph:"🏛", title:"Public", sub:"Ministries · Cities", body:"Public institutions connect CSRI’s work with policy priorities, public value and institutional change. This layer matters where innovation is expected to serve wider social and economic goals." },
+  { id:"industry", k:"surr", glyph:"🏭", title:"Industry", sub:"Companies · Clusters", body:"Industry partners bring market signals, operational constraints and implementation contexts. They help test whether research-driven solutions can be translated into usable products, services or organizational practices." },
+
+  { id:"horizon",  k:"emb", glyph:"⭑", title:"Horizon Europe", sub:"Framework program", body:"Horizon Europe provides a European program context for research, innovation and consortium-based implementation. For CSRI, it is a framework for building evidence, partnerships and policy-relevant outputs." },
+  { id:"eit",      k:"emb", glyph:"▲", title:"EIT", sub:"Knowledge & Innovation", body:"EIT communities connect education, innovation and business development. They give CSRI a program environment in which methods can be tested with universities, public research organizations and market actors." },
+
+  { id:"research", k:"del", glyph:"🔍", title:"Research", sub:"Inquiry · Evidence", body:"Research is the analytical base of the ecosystem. It turns partner experience and project data into evidence that can inform decisions, publications, program design and policy recommendations." },
+  { id:"impl",     k:"del", glyph:"▶", title:"Implementation", sub:"Pilots · Practice", body:"Implementation translates evidence into operational practice: pilots, services, tools, training formats and repeatable procedures that can be used by partners and institutions." },
+  { id:"ktc",      k:"del", glyph:"↔", title:"Knowledge transfer", sub:"Co-creation · RI commercialisation", body:"Knowledge transfer describes how CSRI translates research, methods and research infrastructure into practical forms of cooperation with industry, public institutions and other innovation actors. It covers both co-creation processes and the commercialisation of research infrastructure, including formats developed through InfraBooster." },
+
+  { id:"innov",    k:"con", glyph:"✦", title:"Innovation capacity", sub:"Talent · Methods · IP", body:"Innovation capacity is a durable effect of CSRI’s work: skills, methods and intangible assets that remain in organizations after a project ends. It includes co-creation routines, IP awareness, commercialization capacity and organizational learning." },
+  { id:"resp",     k:"con", glyph:"♦", title:"Responsible impact", sub:"Practical · Accountable", body:"Responsible impact means that innovation is assessed not only by novelty or market potential, but also by usefulness, accountability, environmental and social relevance, and the quality of the process that produced it." },
+  { id:"society",  k:"con", glyph:"♥", title:"Societal needs", sub:"Citizens · Communities", body:"Societal needs are the outer reference point of the map. The ecosystem is meaningful when research, programs and implementation respond to real problems faced by citizens, communities and public institutions." }
+];
+
+const KMETA = {
+  surr:{ label:"01 · Surrounded by", title:"Surrounded by", cap:"Academic · Public · Industry", desc:"This layer shows the partner environment closest to CSRI. Academic, public and industry actors provide research expertise, public mandates, market contexts and implementation conditions for applied innovation work." },
+  emb:{ label:"02 · Embedded in", title:"Embedded in", cap:"Horizon Europe · EIT", desc:"This layer shows the European program architecture in which CSRI operates. Horizon Europe and EIT communities frame collaboration, funding logic, consortium work and the translation of research into practice." },
+  del:{ label:"03 · Delivering", title:"Delivering", cap:"Research · Implementation · Knowledge transfer", desc:"This layer shows what CSRI actually delivers: research-based evidence, practical implementation and knowledge transfer. The knowledge transfer node covers both co-creation methods and research infrastructure commercialisation, so it can represent Consumer Engagement Labs and InfraBooster without narrowing CSRI to one initiative." },
+  con:{ label:"04 · Contributing to", title:"Contributing to", cap:"Innovation capacity · Responsible impact · Societal needs", desc:"This layer shows the wider effects of the ecosystem. CSRI’s work contributes to innovation capacity, responsible impact and responses to societal needs while remaining connected with public value and accountable practice." }
+};
+
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+const svg = $("#svg");
+const NS = "http://www.w3.org/2000/svg";
+const cx=500, cy=450, R_HUB=72;
+const RING = { surr:135, emb:215, del:300, con:375 };
+const CONTEXT_R = 420;
+const EDGES = [];
+const RINGS = [];
+const RING_LABELS = [];
+let activeLayer = null;
+let activeNode = null;
+
+function svgEl(tag, attrs={}, children=[]){
+  const e = document.createElementNS(NS, tag);
+  Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
+  children.forEach(c => e.appendChild(c));
+  return e;
+}
+function setHTML(el, html){ el.innerHTML = html; }
+function escapeAttr(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function safeStorageGet(key){ try { return window.localStorage ? localStorage.getItem(key) : null; } catch(e) { return null; } }
+function safeStorageSet(key, value){ try { if(window.localStorage) localStorage.setItem(key, value); } catch(e) {} }
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  safeStorageSet("csriTheme", t);
+  $("#themeIcon").innerHTML = t === "dark"
+    ? '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>';
+}
+function initTheme(){
+  const saved = safeStorageGet("csriTheme");
+  if(saved === "dark" || saved === "light") setTheme(saved);
+  else setTheme(matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+
+function positionNodes(){
+  const byK = { surr:[], emb:[], del:[], con:[] };
+  NODES.forEach(n => byK[n.k].push(n));
+  [-Math.PI/2, Math.PI/6, Math.PI - Math.PI/6].forEach((angle,i) => Object.assign(byK.surr[i], { angle, r:RING.surr }));
+  [-Math.PI/2 + 0.55, Math.PI - 0.35].forEach((angle,i) => Object.assign(byK.emb[i], { angle, r:RING.emb }));
+  [-Math.PI/2 + 0.42, Math.PI/4, Math.PI].forEach((angle,i) => Object.assign(byK.del[i], { angle, r:RING.del }));
+  [0, Math.PI + 0.45, Math.PI/2 + 0.42].forEach((angle,i) => Object.assign(byK.con[i], { angle, r:RING.con }));
+  NODES.forEach(n => {
+    n.x = cx + Math.cos(n.angle)*n.r;
+    n.y = cy + Math.sin(n.angle)*n.r;
+  });
+}
+
+function renderMap(){
+  positionNodes();
+  const staticNodes = Array.from(svg.children).filter(child => ["title","desc"].includes(child.tagName));
+  svg.replaceChildren(...staticNodes);
+
+  RINGS.length = 0;
+  RING_LABELS.length = 0;
+
+  const contextRing = svgEl("circle", { cx, cy, r:CONTEXT_R, class:"context-ring", "aria-hidden":"true" });
+  svg.appendChild(contextRing);
+  const contextTop = svgEl("text", { x:cx, y:cy-CONTEXT_R+18, "text-anchor":"middle", class:"context-label" });
+  contextTop.textContent = "International scope / European reach";
+  svg.appendChild(contextTop);
+
+  [
+    { k:"surr", r:RING.surr, label:"01 · SURROUNDED BY" },
+    { k:"emb",  r:RING.emb,  label:"02 · EMBEDDED IN" },
+    { k:"del",  r:RING.del,  label:"03 · DELIVERING" },
+    { k:"con",  r:RING.con,  label:"04 · CONTRIBUTING TO", solid:true }
+  ].forEach(({k,r,label,solid}) => {
+    const ring = svgEl("circle", {cx, cy, r, class:"ring"+(solid?" ring--solid":""), "data-k":k});
+    svg.appendChild(ring);
+    RINGS.push(ring);
+    const t = svgEl("text", {x:cx, y:cy+r+18, "text-anchor":"middle", class:"ring-label", "data-k":k});
+    t.textContent = label;
+    svg.appendChild(t);
+    RING_LABELS.push(t);
+  });
+
+  const edgesG = svgEl("g", { "aria-hidden":"true" });
+  svg.appendChild(edgesG);
+  EDGES.length = 0;
+  NODES.forEach(n => {
+    const ox = cx + Math.cos(n.angle)*(R_HUB-2);
+    const oy = cy + Math.sin(n.angle)*(R_HUB-2);
+    const midR = (R_HUB + n.r)/2;
+    const off = 18 * (n.k==="surr"?-1:n.k==="emb"?0.6:n.k==="del"?-0.6:1);
+    const mx = cx + Math.cos(n.angle+0.04)*midR;
+    const my = cy + Math.sin(n.angle+0.04)*midR + off*0.05;
+    const path = svgEl("path", { d:`M ${ox} ${oy} Q ${mx} ${my} ${n.x} ${n.y}`, class:"edge", "data-k":n.k, "data-id":n.id });
+    edgesG.appendChild(path);
+    EDGES.push({ id:n.id, k:n.k, path });
+  });
+
+  const nodesG = svgEl("g");
+  svg.appendChild(nodesG);
+  NODES.forEach((n, i) => {
+    const g = svgEl("g", {
+      class:"node", "data-id":n.id, "data-k":n.k, transform:`translate(${n.x},${n.y})`, tabindex:"0", role:"button",
+      "aria-label":`${n.title}. ${n.sub}. ${KMETA[n.k].label}`
+    });
+    g.appendChild(svgEl("title", {}, [document.createTextNode(`${n.title}: ${n.body}`)]));
+    g.appendChild(svgEl("circle", { class:"bg", cx:0, cy:0, r:20 }));
+    const glyph = svgEl("text", { class:"glyph", x:0, y:0 }); glyph.textContent = n.glyph; g.appendChild(glyph);
+    const above = (n.k === "emb" || n.id === "resp" || n.id === "research" || n.id === "society");
+    const below = !above;
+    const titleY = above ? -38 : 42;
+    const subY = above ? -56 : 59;
+    const title = svgEl("text", { class:"title", x:0, y:titleY }); title.textContent = n.title; g.appendChild(title);
+    const sub = svgEl("text", { class:"sub", x:0, y:subY }); sub.textContent = n.sub; g.appendChild(sub);
+    g.addEventListener("mouseenter", () => previewNode(n.id));
+    g.addEventListener("focus", () => previewNode(n.id));
+    g.addEventListener("click", e => { e.stopPropagation(); toggleNode(n.id); });
+    g.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggleNode(n.id); } });
+    nodesG.appendChild(g);
+  });
+
+  const hubG = svgEl("g", { class:"hub-group", tabindex:"0", role:"button", "aria-label":"Reset to CSRI centre view" });
+  hubG.appendChild(svgEl("circle", { class:"hub", cx, cy, r:R_HUB }));
+  const hubText = svgEl("text", { class:"hub-text", x:cx, y:cy+1 });
+  hubText.textContent = "CSRI";
+  hubG.appendChild(hubText);
+  hubG.style.cursor = "pointer";
+  hubG.addEventListener("click", e => { e.stopPropagation(); clearAll(); });
+  hubG.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); clearAll(); } });
+  svg.appendChild(hubG);
+}
+
+function layerNodes(k){
+  return NODES.filter(n => n.k === k);
+}
+
+function setCentreChips(){
+  const chips = [
+    ['centre','Centre'], ['anchor','Anchor'], ['convener','Convener']
+  ];
+  $('#rChips').innerHTML = chips.map(([role,label], i) => `<button class="reading__chip${i===0?' is-active':''}" type="button" data-role="${role}">${label}</button>`).join('');
+}
+
+function setLayerChips(k){
+  $('#rChips').innerHTML = layerNodes(k).map(n => `<button class="reading__chip" type="button" data-node="${n.id}">${escapeAttr(n.title)}</button>`).join('');
+}
+
+function setNodeChips(n){
+  $('#rChips').innerHTML = `<button class="reading__chip is-active" type="button" data-layer="${n.k}">${escapeAttr(KMETA[n.k].title)}</button><button class="reading__chip" type="button" data-reset="1">Centre</button>`;
+}
+
+function layerCountText(k){
+  const c = layerNodes(k).length;
+  return `${c} anchor${c===1?'':'s'}`;
+}
+
+function setReading({eye, count, title, cap, body, html=false}){
+  $("#rEye").textContent = eye;
+  $("#rCount").textContent = count;
+  setHTML($("#rTitle"), `<span class="accent">${escapeAttr(title)}</span>`);
+  $("#rCap").textContent = cap;
+  if(html) $("#rBody").innerHTML = body; else $("#rBody").textContent = body;
+}
+
+function paintNode(n){
+  const idx = NODES.findIndex(x => x.id === n.id);
+  setReading({ eye:KMETA[n.k].label, count:String(idx+1).padStart(2,"0") + " / " + String(NODES.length).padStart(2,"0"), title:n.title, cap:n.sub, body:n.body });
+  setNodeChips(n);
+  $$(".node").forEach(el => el.classList.toggle("is-active", el.dataset.id === n.id));
+  EDGES.forEach(e => {
+    e.path.classList.toggle("is-bold", e.id === n.id);
+    e.path.classList.toggle("is-faded", e.id !== n.id && (!activeLayer || e.k !== activeLayer));
+  });
+}
+
+function applyLayer(k){
+  $$(".node").forEach(el => {
+    el.classList.toggle("is-faded", Boolean(k && el.dataset.k !== k));
+    if(!activeNode) el.classList.remove("is-active");
+  });
+  EDGES.forEach(e => {
+    e.path.classList.toggle("is-faded", Boolean(k && e.k !== k));
+    e.path.classList.toggle("is-bold", Boolean(k && e.k === k));
+  });
+  $$(".keystrip__item").forEach(it => {
+    it.classList.toggle("is-active", it.dataset.k === k);
+    it.classList.toggle("is-dim", Boolean(k && it.dataset.k !== k));
+    it.setAttribute("aria-pressed", it.dataset.k === k ? "true" : "false");
+  });
+  $$(".layer").forEach(it => {
+    it.classList.toggle("is-active", it.dataset.k === k);
+    it.classList.toggle("is-dim", Boolean(k && it.dataset.k !== k));
+    it.setAttribute("aria-pressed", it.dataset.k === k ? "true" : "false");
+  });
+  RINGS.forEach(r => {
+    r.classList.toggle("is-active", Boolean(k && r.dataset.k === k));
+    r.classList.toggle("is-faded", Boolean(k && r.dataset.k !== k));
+  });
+  RING_LABELS.forEach(t => {
+    t.classList.toggle("is-active", Boolean(k && t.dataset.k === k));
+    t.classList.toggle("is-faded", Boolean(k && t.dataset.k !== k));
+  });
+}
+
+function showLayer(k){
+  activeNode = null;
+  if(activeLayer === k){ clearAll(); return; }
+  activeLayer = k;
+  applyLayer(k);
+  const meta = KMETA[k];
+  setReading({ eye:meta.label, count:layerCountText(k), title:meta.title, cap:meta.cap, body:meta.desc });
+  setLayerChips(k);
+}
+
+function previewNode(id){
+  if(activeNode) return;
+  const n = NODES.find(x => x.id === id);
+  if(n) paintNode(n);
+}
+
+function toggleNode(id){
+  if(activeNode === id){ activeNode = null; resetReading(); applyLayer(activeLayer); return; }
+  activeNode = id;
+  const n = NODES.find(x => x.id === id);
+  if(n) paintNode(n);
+}
+
+function resetReading(){
+  setReading({
+    eye:"Centre",
+    count:"00 / " + String(NODES.length).padStart(2,"0"),
+    title:"CSRI",
+    cap:"Centre for Socially Responsible Innovations",
+    body:"CSRI sits at the centre of an ecosystem it neither owns nor fully contains. The map opens outward in four readings: <em>who stands beside it</em>, <em>where it is embedded</em>, <em>what it delivers</em>, and <em>what it contributes to</em>. Each ring is a different question. Each node is a different answer.",
+    html:true
+  });
+  setCentreChips();
+  $$(".node").forEach(el => el.classList.remove("is-active"));
+  if(!activeLayer) EDGES.forEach(e => e.path.classList.remove("is-bold", "is-faded"));
+  $$(".reading__chip").forEach(c => c.classList.toggle("is-active", c.dataset.role === "centre"));
+}
+
+function clearAll(){
+  activeLayer = null;
+  activeNode = null;
+  applyLayer(null);
+  resetReading();
+}
+
+function initListeners(){
+  $("#themeBtn").addEventListener("click", () => setTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+  $("#resetBtn").addEventListener("click", clearAll);
+  $$(".keystrip__item").forEach(it => { it.setAttribute("aria-pressed", "false"); it.addEventListener("click", () => showLayer(it.dataset.k)); });
+  $$(".layer").forEach(it => { it.setAttribute("aria-pressed", "false"); it.addEventListener("click", () => showLayer(it.dataset.k)); });
+  $('#rChips').addEventListener('click', (e) => {
+    const ch = e.target.closest('.reading__chip');
+    if(!ch) return;
+    $$('.reading__chip', $('#rChips')).forEach(c => c.classList.toggle('is-active', c === ch));
+    if(ch.dataset.node){
+      activeNode = ch.dataset.node;
+      const n = NODES.find(x => x.id === activeNode);
+      if(n) paintNode(n);
+      return;
+    }
+    if(ch.dataset.layer){
+      activeNode = null;
+      showLayer(ch.dataset.layer);
+      return;
+    }
+    if(ch.dataset.reset){ clearAll(); return; }
+    if(activeNode || activeLayer) return;
+    const text = {
+      centre:"CSRI sits at the centre of an ecosystem it neither owns nor fully contains. Each ring is a different question. Each node is a different answer.",
+      anchor:"As an <em>anchor</em>, CSRI holds long-term partnerships steady — the inner ring of academic, public and industry partners.",
+      convener:"As a <em>convener</em>, CSRI assembles partners around shared questions: from Horizon Europe consortia to EIT communities, applied innovation programs, co-creation processes and research infrastructure commercialisation."
+    };
+    $('#rBody').innerHTML = text[ch.dataset.role] || text.centre;
+  });
+  $(".stage").addEventListener("click", () => { if(activeNode) { activeNode = null; resetReading(); applyLayer(activeLayer); } });
+}
+
+initTheme();
+renderMap();
+initListeners();
+resetReading();
+})();
+</script>
+</body>
+</html>
