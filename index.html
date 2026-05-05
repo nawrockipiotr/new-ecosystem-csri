@@ -67,8 +67,10 @@
   .keystrip__item[data-k="con"]  { color:var(--c3); }
   .keystrip__item span:last-child { color:var(--ink); }
 
-  .body { display:grid; grid-template-columns:minmax(210px,240px) minmax(440px,1fr) minmax(280px,320px); gap:16px; padding:6px 4px 18px; align-items:start; }
-  @media (max-width:1120px) { .body { grid-template-columns:1fr; } .layers { order:2; } .reading { order:3; } .stage { order:1; } }
+  .body { display:grid; grid-template-columns:minmax(220px,260px) minmax(520px,640px) minmax(280px,320px); gap:24px; padding:6px 4px 18px; align-items:start; justify-content:center; isolation:isolate; }
+  .layers, .stage, .reading { min-width:0; }
+  @media (max-width:1220px) { .body { grid-template-columns:minmax(220px,260px) minmax(520px,680px); } .reading { grid-column:1 / -1; max-width:680px; justify-self:center; width:100%; } }
+  @media (max-width:900px) { .body { grid-template-columns:1fr; } .layers { order:2; } .reading { order:3; max-width:none; } .stage { order:1; } }
 
   .layers { display:flex; flex-direction:column; gap:10px; }
   .layers__title { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:700; padding:0 4px 4px; }
@@ -85,7 +87,7 @@
   .layer__name { font-size:15px; font-weight:700; color:var(--ink); margin:2px 0 6px; letter-spacing:-0.01em; }
   .layer__desc { font-size:12.5px; color:var(--ink-3); line-height:1.5; }
 
-  .stage { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:8px; aspect-ratio:1.18/1; position:relative; overflow:hidden; min-height:560px; box-shadow:var(--shadow); }
+  .stage { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:8px; aspect-ratio:1.08/1; position:relative; overflow:hidden; min-height:540px; box-shadow:var(--shadow); z-index:0; }
   .stage svg { width:100%; height:100%; display:block; }
 
   .ring { fill:none; stroke:var(--ink); opacity:0.10; stroke-width:1; stroke-dasharray:3 5; }
@@ -127,7 +129,7 @@
   .node.is-active circle.bg { stroke-width:4; r:23; }
   .node.is-faded { opacity:0.20; }
 
-  .reading { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 16px; display:flex; flex-direction:column; gap:14px; align-self:start; box-shadow:var(--shadow); }
+  .reading { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 16px; display:flex; flex-direction:column; gap:14px; align-self:start; box-shadow:var(--shadow); position:relative; z-index:1; overflow-wrap:anywhere; }
   .reading__top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .reading__eyebrow { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-3); font-weight:700; }
   .reading__count { font-family:var(--font-num); font-variant-numeric:tabular-nums; font-size:11px; color:var(--ink-4); font-weight:600; letter-spacing:0.05em; }
@@ -136,7 +138,7 @@
   .reading__cap { font-size:12.5px; color:var(--ink-3); line-height:1.5; font-style:italic; margin:0; }
   .reading__body { font-size:13px; line-height:1.6; color:var(--ink-2); margin:0; }
   .reading__body em { color:var(--ink); font-style:normal; font-weight:600; }
-  .reading__chips { display:flex; gap:6px; flex-wrap:wrap; padding-top:6px; border-top:1px dashed var(--line); }
+  .reading__chips { display:flex; gap:6px; flex-wrap:wrap; padding-top:6px; border-top:1px dashed var(--line); max-width:100%; }
   .reading__chip { appearance:none; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; padding:6px 11px; border-radius:6px; border:1px solid var(--line); cursor:pointer; font-weight:700; color:var(--ink-3); background:var(--paper); transition:all .15s; }
   .reading__chip:hover { color:var(--ink); border-color:var(--ink-4); }
   .reading__chip.is-active { color:var(--paper); border-color:var(--ink); background:var(--ink); }
@@ -149,7 +151,7 @@
     .hero { padding:18px 8px 20px; }
     .keystrip { justify-content:flex-start; padding-inline:0; }
     .body { padding-inline:0; gap:12px; }
-    .stage { min-height:430px; aspect-ratio:1/1; padding:4px; }
+    .stage { min-height:420px; aspect-ratio:1/1; padding:4px; }
     .reading { padding:16px; }
   }
 
