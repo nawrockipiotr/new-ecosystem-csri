@@ -67,10 +67,41 @@
   .keystrip__item[data-k="con"]  { color:var(--c3); }
   .keystrip__item span:last-child { color:var(--ink); }
 
-  .body { display:grid; grid-template-columns:minmax(220px,260px) minmax(520px,640px) minmax(280px,320px); gap:24px; padding:6px 4px 18px; align-items:start; justify-content:center; isolation:isolate; }
-  .layers, .stage, .reading { min-width:0; }
-  @media (max-width:1220px) { .body { grid-template-columns:minmax(220px,260px) minmax(520px,680px); } .reading { grid-column:1 / -1; max-width:680px; justify-self:center; width:100%; } }
-  @media (max-width:900px) { .body { grid-template-columns:1fr; } .layers { order:2; } .reading { order:3; max-width:none; } .stage { order:1; } }
+  /* Layout note: the map and the reading panel must never occupy the same visual space.
+     The centre column is intentionally capped, because the SVG labels extend close to the
+     right edge of the map. On narrower embeds, the reading panel moves below the map. */
+  .body {
+    display:grid;
+    grid-template-columns:280px 560px 320px;
+    gap:22px;
+    padding:6px 4px 18px;
+    align-items:start;
+    justify-content:center;
+    isolation:isolate;
+    max-width:1226px;
+    margin:0 auto;
+  }
+  .layers, .stage, .reading { min-width:0; width:100%; }
+  .stage { grid-column:2; }
+  .reading { grid-column:3; }
+  .layers { grid-column:1; }
+  @media (max-width:1320px) {
+    .body {
+      grid-template-columns:280px minmax(520px, 620px);
+      max-width:930px;
+      gap:20px;
+    }
+    .layers { grid-column:1; }
+    .stage { grid-column:2; }
+    .reading { grid-column:1 / -1; max-width:620px; justify-self:end; width:100%; }
+  }
+  @media (max-width:980px) {
+    .body { grid-template-columns:1fr; max-width:720px; }
+    .layers, .stage, .reading { grid-column:1; }
+    .layers { order:2; }
+    .stage { order:1; }
+    .reading { order:3; max-width:none; justify-self:stretch; }
+  }
 
   .layers { display:flex; flex-direction:column; gap:10px; }
   .layers__title { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:700; padding:0 4px 4px; }
@@ -87,7 +118,7 @@
   .layer__name { font-size:15px; font-weight:700; color:var(--ink); margin:2px 0 6px; letter-spacing:-0.01em; }
   .layer__desc { font-size:12.5px; color:var(--ink-3); line-height:1.5; }
 
-  .stage { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:8px; aspect-ratio:1.08/1; position:relative; overflow:hidden; min-height:540px; box-shadow:var(--shadow); z-index:0; }
+  .stage { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:8px; aspect-ratio:1.04/1; position:relative; overflow:hidden; min-height:520px; max-width:620px; box-shadow:var(--shadow); z-index:0; }
   .stage svg { width:100%; height:100%; display:block; }
 
   .ring { fill:none; stroke:var(--ink); opacity:0.10; stroke-width:1; stroke-dasharray:3 5; }
@@ -129,7 +160,7 @@
   .node.is-active circle.bg { stroke-width:4; r:23; }
   .node.is-faded { opacity:0.20; }
 
-  .reading { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 16px; display:flex; flex-direction:column; gap:14px; align-self:start; box-shadow:var(--shadow); position:relative; z-index:1; overflow-wrap:anywhere; }
+  .reading { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 16px; display:flex; flex-direction:column; gap:14px; align-self:start; box-shadow:var(--shadow); position:relative; z-index:2; overflow-wrap:anywhere; }
   .reading__top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .reading__eyebrow { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-3); font-weight:700; }
   .reading__count { font-family:var(--font-num); font-variant-numeric:tabular-nums; font-size:11px; color:var(--ink-4); font-weight:600; letter-spacing:0.05em; }
